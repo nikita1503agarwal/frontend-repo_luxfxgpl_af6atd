@@ -1,28 +1,30 @@
-import React, { useRef } from 'react'
-import { motion, useAnimation } from 'framer-motion'
+import React, { useRef, forwardRef, useImperativeHandle, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import { Linkedin, FileText, Play, ChevronLeft, ChevronRight } from 'lucide-react'
 
-// Simple horizontal swiper-style sections controlled by arrows/swipes
-export default function CarouselSections() {
+// Horizontal swiper-style sections with programmatic navigation and keyboard support
+const CarouselSections = forwardRef(function CarouselSections(_, ref) {
   const containerRef = useRef(null)
-  const controls = useAnimation()
 
-  const scrollByViewport = (dir) => {
+  const scrollByViewport = useCallback((dir) => {
     const el = containerRef.current
     if (!el) return
     const amount = window.innerWidth
     el.scrollBy({ left: dir * amount, behavior: 'smooth' })
-  }
+  }, [])
 
-  const sections = [
-    { id: 'projects', title: 'Projects' },
-    { id: 'internships', title: 'Internships' },
-    { id: 'about', title: 'About Me' },
-    { id: 'video', title: 'Intro Video' },
-    { id: 'goals', title: 'Goals' },
-    { id: 'fun', title: 'Fun Facts' },
-    { id: 'resume', title: 'Resume Highlights' },
-  ]
+  const goTo = useCallback((idOrDir) => {
+    const el = containerRef.current
+    if (!el) return
+
+    if (idOrDir === 'next') return scrollByViewport(1)
+    if (idOrDir === 'prev') return scrollByViewport(-1)
+
+    const target = document.getElementById(idOrDir)
+    if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+  }, [scrollByViewport])
+
+  useImperativeHandle(ref, () => ({ goTo }))
 
   return (
     <section className="relative w-full bg-slate-950 text-white">
@@ -85,7 +87,9 @@ export default function CarouselSections() {
       </div>
     </section>
   )
-}
+})
+
+export default CarouselSections
 
 function Section({ id, title, accent, children }) {
   return (
