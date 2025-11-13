@@ -25,14 +25,33 @@ export default function Hero({ onGo }) {
     Resume: 'resume',
   }), [])
 
+  // Map a section to its keyboard key so clicks can behave like a real keypress
+  const sectionToKey = useMemo(() => ({
+    projects: 'p',
+    internships: 'i',
+    about: 'a',
+    video: 'v',
+    goals: 'g',
+    fun: 'f',
+    resume: 'r',
+  }), [])
+
   const handleMouseDown = (e) => {
     const raw = e?.target?.name || ''
     if (!raw) return
-    // Normalize incoming name to a known section
     const key = raw.trim()
     const dest = nameToSection[key]
     if (!dest) return
-    // Delegate to parent navigation logic (which handles about->video and resume URL)
+
+    // Dispatch a synthetic keydown so it behaves exactly like pressing the keyboard key
+    const synthKey = sectionToKey[dest]
+    if (synthKey) {
+      const evt = new KeyboardEvent('keydown', { key: synthKey, bubbles: true })
+      window.dispatchEvent(evt)
+      return
+    }
+
+    // Fallback: directly delegate to parent navigation logic
     onGo?.(dest)
   }
 
