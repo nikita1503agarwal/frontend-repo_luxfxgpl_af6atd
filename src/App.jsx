@@ -31,13 +31,11 @@ function App() {
     if (section) section.scrollIntoView({ behavior: 'smooth', inline: 'start' })
   }, [])
 
-  const handleNext = () => goTo('projects')
-
   useKeyboardShortcuts(goTo)
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <Hero onNext={handleNext} />
+      <Hero onGo={goTo} />
       <CarouselSections ref={carouselRef} />
       <KeyboardNav onGo={goTo} />
       <footer className="border-t border-white/10 py-8 text-center text-white/60">
